@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador PMV DGT - Versión 10 Dual Mode</title>
+    <title>Simulador PMV DGT - Versión 1.0.0 Dual Mode</title>
     <style>
         :root {
             --panel-bg: #000;
@@ -189,7 +189,7 @@
 <body>
 
     <div class="main-card">
-        <h3 style="text-align:center; margin-top:0; color: #2c3e50; margin-bottom:15px;">Diseñador PMV DGT v10</h3>
+        <h3 style="text-align:center; margin-top:0; color: #2c3e50; margin-bottom:15px;">Diseñador PMV DGT v1.0.0</h3>
         
         <div class="top-blink-controls">
             <label class="inter-label"><input type="checkbox" id="chk-left" onchange="toggleBlink('slot-left', this)"> Inter.</label>
@@ -230,7 +230,7 @@
 
                 <div style="margin-top: 15px; margin-bottom: 5px; display:flex; align-items:center; gap:8px;">
                     <span style="font-size:11px; font-weight:bold; color:#7f8c8d;">ORIGEN ICONOS:</span>
-                    <button class="btn-mode active" id="mode-dgt" onclick="setLibraryMode('dgt')">DGT (GitHub)</button>
+                    <button class="btn-mode active" id="mode-dgt" onclick="setLibraryMode('dgt')">Oficiales DGT</button>
                     <button class="btn-mode" id="mode-custom" onclick="setLibraryMode('custom')">Personalizado</button>
                 </div>
 
@@ -246,7 +246,7 @@
                     <button class="action-btn" style="background:#3498db" onclick="setTarget('right')">DER.</button>
                 </div>
                 <button class="action-btn" style="background:#2ecc71" onclick="togglePreview()">👁 VISTA PREVIA</button>
-                <button class="action-btn" style="background:#e67e22" onclick="resetAll()">LIMPIAR TODO</button>
+                <button class="action-btn" style="background:#e67e22" onclick="resetAll()">❌ LIMPIAR TODO</button>
                 
                 <button id="btn-upload-local" class="action-btn" style="background:#95a5a6;" onclick="document.getElementById('file-input').click()">📁 CARGAR CARPETA</button>
                 <input type="file" id="file-input" webkitdirectory directory multiple style="display:none" onchange="loadLocalIcons(this)">
@@ -255,9 +255,9 @@
 
         <div class="info-section">
             <h3>Información y Funcionamiento</h3>
-            <p><strong>Qué es:</strong> Simulador profesional de Paneles de Mensaje Variable para diseño de señalización vial.</p>
-            <p><strong>Cómo funciona:</strong> Escribe el texto deseado, selecciona el slot (Izq/Der) y elige un icono de la librería. Usa la "Vista Previa" para eliminar guías visuales.</p>
-            <p><strong>Créditos:</strong> Herramienta técnica basada en el catálogo de señales oficiales.</p>
+            <p><strong>¿Qué es?</strong> Simulador profesional de Paneles de Mensaje Variable para diseño de señalización vial.</p>
+            <p><strong>¿Cómo funciona?</strong> Escribe el texto deseado, selecciona el slot (Izq/Der) y elige un icono de la librería. Usa la "Vista Previa" para eliminar guías visuales.</p>
+            <p><strong>Créditos:</strong> <a href="https://sites.google.com/view/elcarreteromc">https://sites.google.com/view/elcarreteromc</a></p>
         </div>
     </div>
 
@@ -325,7 +325,7 @@
                 localBtn.disabled = false;
                 localBtn.style.opacity = '1';
                 localBtn.style.cursor = 'pointer';
-                grid.innerHTML = '<p style="color:#999; font-size:11px; padding: 10px;">Modo personalizado activo. Usa el botón "CARGAR CARPETA" para importar iconos desde tu PC.</p>';
+                grid.innerHTML = '<p style="color:#999; font-size:11px; padding: 10px;">Usa el botón "CARGAR CARPETA" para importar iconos desde tu PC.</p>';
             }
         }
 
