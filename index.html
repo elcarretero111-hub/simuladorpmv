@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador PMV DGT - Versión 8 Compacta</title>
+    <style>
+        :root {
+            --panel-bg: #000;
+            --led-yellow: #ffcc00;
+            --ui-bg: #2c3e50;
+            --border-guide: 1px dashed #444;
+            --selection-blue: #0984e3;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, Electronic Highway Sign;
+            background-color: var(--ui-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 10px;
+            margin: 0;
+        }
+
+        /* CONTENEDOR PRINCIPAL ESTILO V3 */
+        .main-card {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px; /* Bordes redondeados V3 */
+            border: 1px solid #bdc3c7; /* Borde gris V3 */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            width: 95%;
+            max-width: 1100px;
+        }
+
+        /* --- PANEL PMV (PROPORCIONES V3) --- */
+        .pmv-container {
+            margin-bottom: 20px;
+        }
+
+        .top-blink-controls {
+            display: grid;
+            grid-template-columns: 180px 1fr 180px;
+            margin-bottom: 6px;
+            padding: 0 5px;
+        }
+
+        .inter-label {
+            font-size: 11px;
+            font-weight: bold;
+            color: #7f8c8d;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .pmv-display {
+            background-color: var(--panel-bg);
+            width: 100%;
+            height: 180px; /* Altura reducida estilo V3 */
+            display: grid;
+            grid-template-columns: 180px 1fr 180px; /* Proporción compacta */
+            border: 6px solid #1a1a1a;
+            border-radius: 4px;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .icon-slot {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-right: var(--border-guide);
+            border-left: var(--border-guide);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #slot-left { border-left: none; }
+        #slot-right { border-right: none; }
+
+        .icon-slot img {
+            width: 85%;
+            height: 85%;
+            object-fit: contain;
+        }
+
+        /* BOTÓN X INDIVIDUAL */
+        .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 18px;
+            height: 18px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 3px;
+            display: none;
+            z-index: 10;
+        }
+
+        .icon-slot:hover .remove-btn { display: block; }
+
+        /* --- TEXTO AJUSTADO --- */
+        .text-area {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: black;
+            padding: 5px 0;
+        }
+
+        .line {
+            color: var(--led-yellow);
+            font-family: 'Courier New', monospace;
+            font-size: 58px; /* Tamaño ajustado para la nueva altura */
+            font-weight: 900;
+            text-transform: uppercase;
+            text-align: center;
+            line-height: 0.9;
+            white-space: pre;
+            text-shadow: 0 0 8px rgba(255, 204, 0, 0.4);
+        }
+
+        /* --- MODO VISTA PREVIA --- */
+        .preview-mode .icon-slot { border: none !important; box-shadow: none !important; }
+        .preview-mode .remove-btn { display: none !important; }
+        .preview-mode .pmv-display { border-color: #000; }
+
+        /* --- CONTROLES --- */
+        .editor-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .input-group { margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+        .input-group input { 
+            flex: 1; padding: 8px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace;
+        }
+
+        .btn-align { padding: 6px 12px; background: #ecf0f1; border: 1px solid #bdc3c7; cursor: pointer; font-size: 12px; }
+        .btn-align.active { background: #3498db; color: white; }
+
+        .action-btn {
+            width: 100%; padding: 10px; margin-bottom: 8px; border: none; border-radius: 5px; 
+            font-weight: bold; cursor: pointer; color: white; font-size: 13px;
+        }
+
+        /* SECCIÓN INFORMACIÓN */
+        .info-section {
+            margin-top: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            color: #2c3e50;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .info-section h3 { margin: 0 0 10px 0; font-size: 16px; color: #2980b9; }
+
+        /* LIBRERÍA */
+        .grid-icons {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 8px; max-height: 180px; overflow-y: auto; border: 1px solid #ddd; padding: 8px; margin-top: 10px;
+        }
+        .lib-img { width: 100%; cursor: pointer; }
+        .blinking { animation: blinker 1s steps(1, start) infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <div class="main-card">
+        <h3 style="text-align:center; margin-top:0; color: #2c3e50; margin-bottom:15px;">Diseñador PMV DGT v8</h3>
+        
+        <div class="top-blink-controls">
+            <label class="inter-label"><input type="checkbox" onchange="toggleBlink('slot-left', this)"> Inter.</label>
+            <label class="inter-label" style="justify-content:center;"><input type="checkbox" onchange="toggleBlink('text-container', this)"> Inter. Texto</label>
+            <label class="inter-label" style="justify-content:right;"><input type="checkbox" onchange="toggleBlink('slot-right', this)"> Inter.</label>
+        </div>
+
+        <div class="pmv-display" id="main-panel">
+            <div class="icon-slot" id="slot-left" onclick="setTarget('left')">
+                <button class="remove-btn" onclick="clearIcon('left', event)">x</button>
+                <img id="img-left" src="" style="display:none">
+            </div>
+
+            <div class="text-area" id="text-container">
+                <div class="line" id="v1"></div>
+                <div class="line" id="v2"></div>
+                <div class="line" id="v3"></div>
+            </div>
+
+            <div class="icon-slot" id="slot-right" onclick="setTarget('right')">
+                <button class="remove-btn" onclick="clearIcon('right', event)">x</button>
+                <img id="img-right" src="" style="display:none">
+            </div>
+        </div>
+
+        <div class="editor-grid">
+            <div>
+                <div style="margin-bottom: 12px; display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:11px; font-weight:bold; color:#7f8c8d;">ALINEACIÓN:</span>
+                    <button class="btn-align" onclick="setAlign('left')" id="al-left">Izq.</button>
+                    <button class="btn-align active" onclick="setAlign('center')" id="al-center">Centro</button>
+                    <button class="btn-align" onclick="setAlign('right')" id="al-right">Der.</button>
+                </div>
+                
+                <div class="input-group"><input type="text" id="i1" maxlength="12" placeholder="Línea 1" oninput="sync()"><span id="c1">12</span></div>
+                <div class="input-group"><input type="text" id="i2" maxlength="12" placeholder="Línea 2" oninput="sync()"><span id="c2">12</span></div>
+                <div class="input-group"><input type="text" id="i3" maxlength="12" placeholder="Línea 3" oninput="sync()"><span id="c3">12</span></div>
+
+                <div class="grid-icons" id="lib-grid">
+                    <p style="color:#999; font-size:11px;">Carga cualquier carpeta con iconos...</p>
+                </div>
+            </div>
+
+            <div>
+                <p style="font-size:12px; margin-bottom:10px;">Editando: <strong id="target-text" style="color:#3498db">IZQUIERDO</strong></p>
+                <div style="display:flex; gap:5px; margin-bottom:15px;">
+                    <button class="action-btn" style="background:#3498db" onclick="setTarget('left')">IZQ.</button>
+                    <button class="action-btn" style="background:#3498db" onclick="setTarget('right')">DER.</button>
+                </div>
+                <button class="action-btn" style="background:#2ecc71" onclick="togglePreview()">👁 VISTA PREVIA</button>
+                <button class="action-btn" style="background:#e67e22" onclick="resetAll()">❌ LIMPIAR TODO</button>
+                <button class="action-btn" style="background:#95a5a6" onclick="document.getElementById('file-input').click()">📁 CARGAR ICONOS</button>
+                <input type="file" id="file-input" webkitdirectory directory multiple style="display:none" onchange="loadIcons(this)">
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>Información y Funcionamiento (test)</h3>
+            <p><strong>¿Qué es esto?</strong> Simulador profesional de Paneles de Mensaje Variable para diseño de señalización vial.</p>
+            <p><strong>¿Cómo funciona?</strong> Escribe el texto deseado, selecciona el slot (Izq/Der) y elige un icono de la librería cargada. Usa la "Vista Previa" para eliminar guías visuales.</p>
+            <p><strong>Créditos:</strong> Herramienta técnica basada en el catálogo de señales oficiales.</p>
+        </div>
+    </div>
+
+    <script>
+        let targetSide = 'left';
+        function sync() {
+            for(let i=1; i<=3; i++) {
+                const val = document.getElementById('i'+i).value.toUpperCase();
+                document.getElementById('v'+i).innerText = val;
+                document.getElementById('c1').innerText = 12 - document.getElementById('i1').value.length;
+                document.getElementById('c2').innerText = 12 - document.getElementById('i2').value.length;
+                document.getElementById('c3').innerText = 12 - document.getElementById('i3').value.length;
+            }
+        }
+        function setAlign(a) {
+            document.querySelectorAll('.line').forEach(l => l.style.textAlign = a);
+            document.querySelectorAll('.btn-align').forEach(b => b.classList.remove('active'));
+            document.getElementById('al-'+a).classList.add('active');
+        }
+        function setTarget(s) {
+            targetSide = s;
+            document.getElementById('target-text').innerText = s === 'left' ? 'IZQUIERDO' : 'DERECHO';
+            document.getElementById('slot-left').style.boxShadow = s === 'left' ? 'inset 0 0 12px #0984e3' : 'none';
+            document.getElementById('slot-right').style.boxShadow = s === 'right' ? 'inset 0 0 12px #0984e3' : 'none';
+        }
+        function clearIcon(side, e) {
+            e.stopPropagation();
+            const img = document.getElementById('img-'+side);
+            img.src = ''; img.style.display = 'none';
+        }
+        function toggleBlink(id, cb) { document.getElementById(id).classList.toggle('blinking', cb.checked); }
+        function togglePreview() { document.getElementById('main-panel').classList.toggle('preview-mode'); }
+        function loadIcons(input) {
+            const grid = document.getElementById('lib-grid');
+            grid.innerHTML = '';
+            Array.from(input.files).filter(f => f.type.startsWith('image/')).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result; img.className = 'lib-img';
+                    img.onclick = () => {
+                        const target = document.getElementById('img-'+targetSide);
+                        target.src = e.target.result; target.style.display = 'block';
+                    };
+                    grid.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        function resetAll() {
+            document.querySelectorAll('input[type="text"]').forEach(i => i.value = '');
+            clearIcon('left', {stopPropagation:()=>{}}); clearIcon('right', {stopPropagation:()=>{}});
+            sync();
+        }
+        setTarget('left');
+    </script>
+</body>
+</html>
