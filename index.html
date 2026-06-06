@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador PMV DGT - Versión 8 Compacta</title>
+    <title>Simulador PMV DGT - Versión 10 Dual Mode</title>
     <style>
         :root {
             --panel-bg: #000;
@@ -14,31 +14,30 @@
         }
 
         body {
-            font-family: 'Segoe UI', Arial, Electronic Highway Sign;
+            font-family: 'Segoe UI', Arial, sans-serif;
             background-color: var(--ui-bg);
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px 10px;
+            justify-content: center;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px 10px;
+            box-sizing: border-box;
         }
 
         /* CONTENEDOR PRINCIPAL ESTILO V3 */
         .main-card {
             background: #ffffff;
             padding: 25px;
-            border-radius: 12px; /* Bordes redondeados V3 */
-            border: 1px solid #bdc3c7; /* Borde gris V3 */
+            border-radius: 12px;
+            border: 1px solid #bdc3c7;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             width: 95%;
             max-width: 1100px;
         }
 
-        /* --- PANEL PMV (PROPORCIONES V3) --- */
-        .pmv-container {
-            margin-bottom: 20px;
-        }
-
+        /* --- PANEL PMV (PROPORCIONES COMPACTAS V3) --- */
         .top-blink-controls {
             display: grid;
             grid-template-columns: 180px 1fr 180px;
@@ -58,9 +57,9 @@
         .pmv-display {
             background-color: var(--panel-bg);
             width: 100%;
-            height: 180px; /* Altura reducida estilo V3 */
+            height: 180px;
             display: grid;
-            grid-template-columns: 180px 1fr 180px; /* Proporción compacta */
+            grid-template-columns: 180px 1fr 180px;
             border: 6px solid #1a1a1a;
             border-radius: 4px;
             box-sizing: border-box;
@@ -108,7 +107,7 @@
 
         .icon-slot:hover .remove-btn { display: block; }
 
-        /* --- TEXTO AJUSTADO --- */
+        /* --- TEXTO RECALIBRADO V3 --- */
         .text-area {
             display: flex;
             flex-direction: column;
@@ -120,7 +119,7 @@
         .line {
             color: var(--led-yellow);
             font-family: 'Courier New', monospace;
-            font-size: 58px; /* Tamaño ajustado para la nueva altura */
+            font-size: 58px;
             font-weight: 900;
             text-transform: uppercase;
             text-align: center;
@@ -134,7 +133,7 @@
         .preview-mode .remove-btn { display: none !important; }
         .preview-mode .pmv-display { border-color: #000; }
 
-        /* --- CONTROLES --- */
+        /* --- CONTROLES DE EDICIÓN --- */
         .editor-grid {
             display: grid;
             grid-template-columns: 1fr 320px;
@@ -148,12 +147,18 @@
             flex: 1; padding: 8px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace;
         }
 
-        .btn-align { padding: 6px 12px; background: #ecf0f1; border: 1px solid #bdc3c7; cursor: pointer; font-size: 12px; }
-        .btn-align.active { background: #3498db; color: white; }
+        .btn-align, .btn-mode { 
+            padding: 6px 12px; background: #ecf0f1; border: 1px solid #bdc3c7; cursor: pointer; font-size: 12px; font-weight: bold; color: #555;
+        }
+        .btn-align.active { background: #3498db; color: white; border-color: #2980b9; }
+        
+        /* Estilo Switch de Librería */
+        .btn-mode.active { background: #2c3e50; color: white; border-color: #1a252f; }
 
         .action-btn {
             width: 100%; padding: 10px; margin-bottom: 8px; border: none; border-radius: 5px; 
             font-weight: bold; cursor: pointer; color: white; font-size: 13px;
+            transition: all 0.2s;
         }
 
         /* SECCIÓN INFORMACIÓN */
@@ -173,8 +178,10 @@
         .grid-icons {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
             gap: 8px; max-height: 180px; overflow-y: auto; border: 1px solid #ddd; padding: 8px; margin-top: 10px;
+            background: #fafafa;
         }
-        .lib-img { width: 100%; cursor: pointer; }
+        .lib-img { width: 100%; cursor: pointer; transition: transform 0.1s; }
+        .lib-img:hover { transform: scale(1.1); }
         .blinking { animation: blinker 1s steps(1, start) infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
     </style>
@@ -182,12 +189,12 @@
 <body>
 
     <div class="main-card">
-        <h3 style="text-align:center; margin-top:0; color: #2c3e50; margin-bottom:15px;">Diseñador PMV DGT v8</h3>
+        <h3 style="text-align:center; margin-top:0; color: #2c3e50; margin-bottom:15px;">Diseñador PMV DGT v10</h3>
         
         <div class="top-blink-controls">
-            <label class="inter-label"><input type="checkbox" onchange="toggleBlink('slot-left', this)"> Inter.</label>
-            <label class="inter-label" style="justify-content:center;"><input type="checkbox" onchange="toggleBlink('text-container', this)"> Inter. Texto</label>
-            <label class="inter-label" style="justify-content:right;"><input type="checkbox" onchange="toggleBlink('slot-right', this)"> Inter.</label>
+            <label class="inter-label"><input type="checkbox" id="chk-left" onchange="toggleBlink('slot-left', this)"> Inter.</label>
+            <label class="inter-label" style="justify-content:center;"><input type="checkbox" id="chk-text" onchange="toggleBlink('text-container', this)"> Inter. Texto</label>
+            <label class="inter-label" style="justify-content:right;"><input type="checkbox" id="chk-right" onchange="toggleBlink('slot-right', this)"> Inter.</label>
         </div>
 
         <div class="pmv-display" id="main-panel">
@@ -221,8 +228,14 @@
                 <div class="input-group"><input type="text" id="i2" maxlength="12" placeholder="Línea 2" oninput="sync()"><span id="c2">12</span></div>
                 <div class="input-group"><input type="text" id="i3" maxlength="12" placeholder="Línea 3" oninput="sync()"><span id="c3">12</span></div>
 
+                <div style="margin-top: 15px; margin-bottom: 5px; display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:11px; font-weight:bold; color:#7f8c8d;">ORIGEN ICONOS:</span>
+                    <button class="btn-mode active" id="mode-dgt" onclick="setLibraryMode('dgt')">DGT (GitHub)</button>
+                    <button class="btn-mode" id="mode-custom" onclick="setLibraryMode('custom')">Personalizado</button>
+                </div>
+
                 <div class="grid-icons" id="lib-grid">
-                    <p style="color:#999; font-size:11px;">Carga cualquier carpeta con iconos...</p>
+                    <p style="color:#999; font-size:11px;">Conectando con la biblioteca de GitHub...</p>
                 </div>
             </div>
 
@@ -233,22 +246,32 @@
                     <button class="action-btn" style="background:#3498db" onclick="setTarget('right')">DER.</button>
                 </div>
                 <button class="action-btn" style="background:#2ecc71" onclick="togglePreview()">👁 VISTA PREVIA</button>
-                <button class="action-btn" style="background:#e67e22" onclick="resetAll()">❌ LIMPIAR TODO</button>
-                <button class="action-btn" style="background:#95a5a6" onclick="document.getElementById('file-input').click()">📁 CARGAR ICONOS</button>
-                <input type="file" id="file-input" webkitdirectory directory multiple style="display:none" onchange="loadIcons(this)">
+                <button class="action-btn" style="background:#e67e22" onclick="resetAll()">LIMPIAR TODO</button>
+                
+                <button id="btn-upload-local" class="action-btn" style="background:#95a5a6;" onclick="document.getElementById('file-input').click()">📁 CARGAR CARPETA</button>
+                <input type="file" id="file-input" webkitdirectory directory multiple style="display:none" onchange="loadLocalIcons(this)">
             </div>
         </div>
 
         <div class="info-section">
-            <h3>Información y Funcionamiento (test)</h3>
-            <p><strong>¿Qué es esto?</strong> Simulador profesional de Paneles de Mensaje Variable para diseño de señalización vial.</p>
-            <p><strong>¿Cómo funciona?</strong> Escribe el texto deseado, selecciona el slot (Izq/Der) y elige un icono de la librería cargada. Usa la "Vista Previa" para eliminar guías visuales.</p>
+            <h3>Información y Funcionamiento</h3>
+            <p><strong>Qué es:</strong> Simulador profesional de Paneles de Mensaje Variable para diseño de señalización vial.</p>
+            <p><strong>Cómo funciona:</strong> Escribe el texto deseado, selecciona el slot (Izq/Der) y elige un icono de la librería. Usa la "Vista Previa" para eliminar guías visuales.</p>
             <p><strong>Créditos:</strong> Herramienta técnica basada en el catálogo de señales oficiales.</p>
         </div>
     </div>
 
     <script>
+        // ====================================================
+        // CONFIGURA AQUÍ TUS DATOS DE GITHUB PARA EL MODO DGT
+        // ====================================================
+        const GH_USER = 'elcarretero111-hub';
+        const GH_REPO = 'simuladorpmv';
+        const GH_FOLDER = 'iconos';
+
         let targetSide = 'left';
+        let currentMode = 'dgt';
+
         function sync() {
             for(let i=1; i<=3; i++) {
                 const val = document.getElementById('i'+i).value.toUpperCase();
@@ -258,28 +281,99 @@
                 document.getElementById('c3').innerText = 12 - document.getElementById('i3').value.length;
             }
         }
+
         function setAlign(a) {
             document.querySelectorAll('.line').forEach(l => l.style.textAlign = a);
             document.querySelectorAll('.btn-align').forEach(b => b.classList.remove('active'));
             document.getElementById('al-'+a).classList.add('active');
         }
+
         function setTarget(s) {
             targetSide = s;
             document.getElementById('target-text').innerText = s === 'left' ? 'IZQUIERDO' : 'DERECHO';
             document.getElementById('slot-left').style.boxShadow = s === 'left' ? 'inset 0 0 12px #0984e3' : 'none';
             document.getElementById('slot-right').style.boxShadow = s === 'right' ? 'inset 0 0 12px #0984e3' : 'none';
         }
+
         function clearIcon(side, e) {
-            e.stopPropagation();
+            if(e) e.stopPropagation();
             const img = document.getElementById('img-'+side);
             img.src = ''; img.style.display = 'none';
         }
+
         function toggleBlink(id, cb) { document.getElementById(id).classList.toggle('blinking', cb.checked); }
+        
         function togglePreview() { document.getElementById('main-panel').classList.toggle('preview-mode'); }
-        function loadIcons(input) {
+
+        // --- CONTROLADOR DEL SWITCH NUBE/LOCAL ---
+        function setLibraryMode(mode) {
+            currentMode = mode;
+            document.getElementById('mode-dgt').classList.toggle('active', mode === 'dgt');
+            document.getElementById('mode-custom').classList.toggle('active', mode === 'custom');
+            
+            const localBtn = document.getElementById('btn-upload-local');
+            const grid = document.getElementById('lib-grid');
+
+            if (mode === 'dgt') {
+                // Deshabilitar botón local de carga
+                localBtn.disabled = true;
+                localBtn.style.opacity = '0.3';
+                localBtn.style.cursor = 'not-allowed';
+                fetchGitHubIcons();
+            } else {
+                // Habilitar botón local de carga
+                localBtn.disabled = false;
+                localBtn.style.opacity = '1';
+                localBtn.style.cursor = 'pointer';
+                grid.innerHTML = '<p style="color:#999; font-size:11px; padding: 10px;">Modo personalizado activo. Usa el botón "CARGAR CARPETA" para importar iconos desde tu PC.</p>';
+            }
+        }
+
+        // --- CARGA CLOUD (GITHUB API) ---
+        async function fetchGitHubIcons() {
+            const grid = document.getElementById('lib-grid');
+            grid.innerHTML = '<p style="color:#999; font-size:11px;">Cargando iconos desde GitHub Cloud...</p>';
+            
+            const apiUrl = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FOLDER}`;
+            
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error();
+                
+                const files = await response.json();
+                grid.innerHTML = ''; 
+                
+                const images = files.filter(f => f.name.match(/\.(png|jpe?g|gif|svg|webp)$/i)).sort((a,b)=>a.name.localeCompare(b.name));
+                
+                if(images.length === 0) {
+                    grid.innerHTML = '<p style="color:red; font-size:11px;">Carpeta vacía en GitHub.</p>';
+                    return;
+                }
+
+                images.forEach(file => {
+                    const img = document.createElement('img');
+                    img.src = file.download_url; 
+                    img.className = 'lib-img';
+                    img.title = file.name.split('.')[0];
+                    img.onclick = () => {
+                        const target = document.getElementById('img-'+targetSide);
+                        target.src = file.download_url; target.style.display = 'block';
+                    };
+                    grid.appendChild(img);
+                });
+            } catch (e) {
+                grid.innerHTML = '<p style="color:#e74c3c; font-size:11px;">⚠️ Configura tus credenciales de repositorio en las líneas 174-176 del código.</p>';
+            }
+        }
+
+        // --- CARGA LOCAL ---
+        function loadLocalIcons(input) {
             const grid = document.getElementById('lib-grid');
             grid.innerHTML = '';
-            Array.from(input.files).filter(f => f.type.startsWith('image/')).forEach(file => {
+            
+            const files = Array.from(input.files).filter(f => f.type.startsWith('image/')).sort((a,b)=>a.name.localeCompare(b.name));
+            
+            files.forEach(file => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const img = document.createElement('img');
@@ -293,12 +387,22 @@
                 reader.readAsDataURL(file);
             });
         }
+
         function resetAll() {
             document.querySelectorAll('input[type="text"]').forEach(i => i.value = '');
-            clearIcon('left', {stopPropagation:()=>{}}); clearIcon('right', {stopPropagation:()=>{}});
+            document.getElementById('chk-left').checked = false;
+            document.getElementById('chk-text').checked = false;
+            document.getElementById('chk-right').checked = false;
+            document.getElementById('slot-left').classList.remove('blinking');
+            document.getElementById('text-container').classList.remove('blinking');
+            document.getElementById('slot-right').classList.remove('blinking');
+            clearIcon('left'); clearIcon('right');
             sync();
         }
+
+        // Ejecución al iniciar
         setTarget('left');
+        setLibraryMode('dgt'); // Arranca en modo DGT por defecto
     </script>
 </body>
 </html>
