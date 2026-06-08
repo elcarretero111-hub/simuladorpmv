@@ -230,7 +230,7 @@
 
                 <div style="margin-top: 15px; margin-bottom: 5px; display:flex; align-items:center; gap:8px;">
                     <span style="font-size:11px; font-weight:bold; color:#7f8c8d;">ICON SOURCE:</span>
-                    <button class="btn-mode active" id="mode-dgt" onclick="setLibraryMode('dgt')">DGT (GitHub)</button>
+                    <button class="btn-mode active" id="mode-dgt" onclick="setLibraryMode('dgt')">Official icons Spain</button>
                     <button class="btn-mode" id="mode-custom" onclick="setLibraryMode('custom')">Custom</button>
                 </div>
 
@@ -245,7 +245,7 @@
                     <button class="action-btn" style="background:#3498db" onclick="setTarget('left')">LEFT</button>
                     <button class="action-btn" style="background:#3498db" onclick="setTarget('right')">RIGHT</button>
                 </div>
-                <button class="action-btn" style="background:#2ecc71" onclick="togglePreview()">👁 LIVE PREVIEW</button>
+                <button class="action-btn" style="background:#2ecc71" onclick="togglePreview()">👁 PREVIEW</button>
                 <button class="action-btn" style="background:#e67e22" onclick="resetAll()">CLEAR ALL</button>
                 
                 <button id="btn-upload-local" class="action-btn" style="background:#95a5a6;" onclick="document.getElementById('file-input').click()">📁 UPLOAD FOLDER</button>
@@ -255,9 +255,9 @@
 
         <div class="info-section">
             <h3>Information & Operation</h3>
-            <p><strong>What is it:</strong> A professional Variable Message Sign (VMS) simulator designed for road signage layout testing.</p>
-            <p><strong>How it works:</strong> Type your message text, select a target slot (Left/Right), and pick an icon from the active library. Use "Live Preview" to hide design guides.</p>
-            <p><strong>Credits:</strong> Technical tool based on the official traffic control sign catalog.</p>
+            <p><strong>What is this?</strong> A professional Variable Message Sign (VMS) simulator designed for road signage layout testing.</p>
+            <p><strong>How it works?</strong> Type your message text, select a target slot (Left/Right), and pick an icon from the active library. Use "Live Preview" to hide design guides.</p>
+            <p><strong>Credits:</strong> <a href="https://sites.google.com/view/elcarreteromc">https://sites.google.com/view/elcarreteromc</a></p>
         </div>
     </div>
 
@@ -325,7 +325,7 @@
                 localBtn.disabled = false;
                 localBtn.style.opacity = '1';
                 localBtn.style.cursor = 'pointer';
-                grid.innerHTML = '<p style="color:#999; font-size:11px; padding: 10px;">Custom mode active. Use the "UPLOAD FOLDER" button to import icons from your PC.</p>';
+                grid.innerHTML = '<p style="color:#999; font-size:11px; padding: 10px;">Use the "UPLOAD FOLDER" button to import icons from your PC.</p>';
             }
         }
 
