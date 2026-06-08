@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador PMV DGT - Versión 1.0.0 Dual Mode</title>
+    <title>VMS VMS Simulator - Version 1.0.0 Dual Mode</title>
     <style>
         :root {
             --panel-bg: #000;
@@ -189,12 +189,12 @@
 <body>
 
     <div class="main-card">
-        <h3 style="text-align:center; margin-top:0; color: #2c3e50; margin-bottom:15px;">Diseñador PMV DGT v1.0.0</h3>
+        <h3 style="text-align:center; margin-top:0; color: #2c3e50; margin-bottom:15px;">VMS Designer v1.0.0</h3>
         
         <div class="top-blink-controls">
-            <label class="inter-label"><input type="checkbox" id="chk-left" onchange="toggleBlink('slot-left', this)"> Inter.</label>
-            <label class="inter-label" style="justify-content:center;"><input type="checkbox" id="chk-text" onchange="toggleBlink('text-container', this)"> Inter. Texto</label>
-            <label class="inter-label" style="justify-content:right;"><input type="checkbox" id="chk-right" onchange="toggleBlink('slot-right', this)"> Inter.</label>
+            <label class="inter-label"><input type="checkbox" id="chk-left" onchange="toggleBlink('slot-left', this)"> Blink</label>
+            <label class="inter-label" style="justify-content:center;"><input type="checkbox" id="chk-text" onchange="toggleBlink('text-container', this)"> Text Blink</label>
+            <label class="inter-label" style="justify-content:right;"><input type="checkbox" id="chk-right" onchange="toggleBlink('slot-right', this)"> Blink</label>
         </div>
 
         <div class="pmv-display" id="main-panel">
@@ -218,46 +218,46 @@
         <div class="editor-grid">
             <div>
                 <div style="margin-bottom: 12px; display:flex; align-items:center; gap:10px;">
-                    <span style="font-size:11px; font-weight:bold; color:#7f8c8d;">ALINEACIÓN:</span>
-                    <button class="btn-align" onclick="setAlign('left')" id="al-left">Izq.</button>
-                    <button class="btn-align active" onclick="setAlign('center')" id="al-center">Centro</button>
-                    <button class="btn-align" onclick="setAlign('right')" id="al-right">Der.</button>
+                    <span style="font-size:11px; font-weight:bold; color:#7f8c8d;">ALIGNMENT:</span>
+                    <button class="btn-align" onclick="setAlign('left')" id="al-left">Left</button>
+                    <button class="btn-align active" onclick="setAlign('center')" id="al-center">Center</button>
+                    <button class="btn-align" onclick="setAlign('right')" id="al-right">Right</button>
                 </div>
                 
-                <div class="input-group"><input type="text" id="i1" maxlength="12" placeholder="Línea 1" oninput="sync()"><span id="c1">12</span></div>
-                <div class="input-group"><input type="text" id="i2" maxlength="12" placeholder="Línea 2" oninput="sync()"><span id="c2">12</span></div>
-                <div class="input-group"><input type="text" id="i3" maxlength="12" placeholder="Línea 3" oninput="sync()"><span id="c3">12</span></div>
+                <div class="input-group"><input type="text" id="i1" maxlength="12" placeholder="Line 1" oninput="sync()"><span id="c1">12</span></div>
+                <div class="input-group"><input type="text" id="i2" maxlength="12" placeholder="Line 2" oninput="sync()"><span id="c2">12</span></div>
+                <div class="input-group"><input type="text" id="i3" maxlength="12" placeholder="Line 3" oninput="sync()"><span id="c3">12</span></div>
 
                 <div style="margin-top: 15px; margin-bottom: 5px; display:flex; align-items:center; gap:8px;">
-                    <span style="font-size:11px; font-weight:bold; color:#7f8c8d;">ORIGEN ICONOS:</span>
-                    <button class="btn-mode active" id="mode-dgt" onclick="setLibraryMode('dgt')">Oficiales DGT</button>
-                    <button class="btn-mode" id="mode-custom" onclick="setLibraryMode('custom')">Personalizado</button>
+                    <span style="font-size:11px; font-weight:bold; color:#7f8c8d;">ICON SOURCE:</span>
+                    <button class="btn-mode active" id="mode-dgt" onclick="setLibraryMode('dgt')">Official icons Spain</button>
+                    <button class="btn-mode" id="mode-custom" onclick="setLibraryMode('custom')">Custom</button>
                 </div>
 
                 <div class="grid-icons" id="lib-grid">
-                    <p style="color:#999; font-size:11px;">Conectando con la biblioteca de GitHub...</p>
+                    <p style="color:#999; font-size:11px;">Connecting to GitHub library...</p>
                 </div>
             </div>
 
             <div>
-                <p style="font-size:12px; margin-bottom:10px;">Editando: <strong id="target-text" style="color:#3498db">IZQUIERDO</strong></p>
+                <p style="font-size:12px; margin-bottom:10px;">Editing: <strong id="target-text" style="color:#3498db">LEFT SIDE</strong></p>
                 <div style="display:flex; gap:5px; margin-bottom:15px;">
-                    <button class="action-btn" style="background:#3498db" onclick="setTarget('left')">IZQ.</button>
-                    <button class="action-btn" style="background:#3498db" onclick="setTarget('right')">DER.</button>
+                    <button class="action-btn" style="background:#3498db" onclick="setTarget('left')">LEFT</button>
+                    <button class="action-btn" style="background:#3498db" onclick="setTarget('right')">RIGHT</button>
                 </div>
-                <button class="action-btn" style="background:#2ecc71" onclick="togglePreview()">👁 VISTA PREVIA</button>
-                <button class="action-btn" style="background:#e67e22" onclick="resetAll()">❌ LIMPIAR TODO</button>
+                <button class="action-btn" style="background:#2ecc71" onclick="togglePreview()">👁 LIVE PREVIEW</button>
+                <button class="action-btn" style="background:#e67e22" onclick="resetAll()">CLEAR ALL</button>
                 
-                <button id="btn-upload-local" class="action-btn" style="background:#95a5a6;" onclick="document.getElementById('file-input').click()">📁 CARGAR CARPETA</button>
+                <button id="btn-upload-local" class="action-btn" style="background:#95a5a6;" onclick="document.getElementById('file-input').click()">📁 UPLOAD FOLDER</button>
                 <input type="file" id="file-input" webkitdirectory directory multiple style="display:none" onchange="loadLocalIcons(this)">
             </div>
         </div>
 
         <div class="info-section">
-            <h3>Información y Funcionamiento</h3>
-            <p><strong>¿Qué es?</strong> Simulador profesional de Paneles de Mensaje Variable para diseño de señalización vial.</p>
-            <p><strong>¿Cómo funciona?</strong> Escribe el texto deseado, selecciona el slot (Izq/Der) y elige un icono de la librería. Usa la "Vista Previa" para eliminar guías visuales.</p>
-            <p><strong>Créditos:</strong> <a href="https://sites.google.com/view/elcarreteromc">https://sites.google.com/view/elcarreteromc</a></p>
+            <h3>Information & Operation</h3>
+            <p><strong>What is it:</strong> A professional Variable Message Sign (VMS) simulator designed for road signage layout testing.</p>
+            <p><strong>How it works:</strong> Type your message text, select a target slot (Left/Right), and pick an icon from the active library. Use "Live Preview" to hide design guides.</p>
+            <p><strong>Credits:</strong> <a href="https://sites.google.com/view/elcarreteromc">https://sites.google.com/view/elcarreteromc</a></p>
         </div>
     </div>
 
@@ -267,7 +267,7 @@
         // ====================================================
         const GH_USER = 'elcarretero111-hub';
         const GH_REPO = 'simuladorpmv';
-        const GH_FOLDER = 'iconos';
+        const GH_FOLDER = 'iconos'; 
 
         let targetSide = 'left';
         let currentMode = 'dgt';
@@ -290,7 +290,7 @@
 
         function setTarget(s) {
             targetSide = s;
-            document.getElementById('target-text').innerText = s === 'left' ? 'IZQUIERDO' : 'DERECHO';
+            document.getElementById('target-text').innerText = s === 'left' ? 'LEFT SIDE' : 'RIGHT SIDE';
             document.getElementById('slot-left').style.boxShadow = s === 'left' ? 'inset 0 0 12px #0984e3' : 'none';
             document.getElementById('slot-right').style.boxShadow = s === 'right' ? 'inset 0 0 12px #0984e3' : 'none';
         }
@@ -325,14 +325,14 @@
                 localBtn.disabled = false;
                 localBtn.style.opacity = '1';
                 localBtn.style.cursor = 'pointer';
-                grid.innerHTML = '<p style="color:#999; font-size:11px; padding: 10px;">Usa el botón "CARGAR CARPETA" para importar iconos desde tu PC.</p>';
+                grid.innerHTML = '<p style="color:#999; font-size:11px; padding: 10px;">Use the "UPLOAD FOLDER" button to import icons from your PC.</p>';
             }
         }
 
         // --- CARGA CLOUD (GITHUB API) ---
         async function fetchGitHubIcons() {
             const grid = document.getElementById('lib-grid');
-            grid.innerHTML = '<p style="color:#999; font-size:11px;">Cargando iconos desde GitHub Cloud...</p>';
+            grid.innerHTML = '<p style="color:#999; font-size:11px;">Loading icons from GitHub Cloud...</p>';
             
             const apiUrl = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FOLDER}`;
             
@@ -346,7 +346,7 @@
                 const images = files.filter(f => f.name.match(/\.(png|jpe?g|gif|svg|webp)$/i)).sort((a,b)=>a.name.localeCompare(b.name));
                 
                 if(images.length === 0) {
-                    grid.innerHTML = '<p style="color:red; font-size:11px;">Carpeta vacía en GitHub.</p>';
+                    grid.innerHTML = '<p style="color:red; font-size:11px;">Empty folder on GitHub.</p>';
                     return;
                 }
 
@@ -362,7 +362,7 @@
                     grid.appendChild(img);
                 });
             } catch (e) {
-                grid.innerHTML = '<p style="color:#e74c3c; font-size:11px;">⚠️ Configura tus credenciales de repositorio en las líneas 174-176 del código.</p>';
+                grid.innerHTML = '<p style="color:#e74c3c; font-size:11px;">⚠️ Please configure your repository credentials on lines 174-176 of the code.</p>';
             }
         }
 
