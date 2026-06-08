@@ -3,4 +3,4 @@ Simulador gratuito de panel de mensaje variable. Los paneles de mensajería vari
 
 Ver 1.0.0
 
-Consulte más información en
+Consulte más información en https://sites.google.com/view/elcarreteromc/artilugios/simulador-de-pmv
