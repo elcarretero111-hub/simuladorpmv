@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VMS VMS Simulator - Version 1.0.0 Dual Mode</title>
+    <title>English VMS Simulator - Version 1.0.1 Dual Mode</title>
     <style>
         :root {
             --panel-bg: #000;
@@ -26,7 +26,7 @@
             box-sizing: border-box;
         }
 
-        /* CONTENEDOR PRINCIPAL ESTILO V3 */
+        /* MAIN CONTAINER STYLE V3 */
         .main-card {
             background: #ffffff;
             padding: 25px;
@@ -37,7 +37,7 @@
             max-width: 1100px;
         }
 
-        /* --- PANEL PMV (PROPORCIONES COMPACTAS V3) --- */
+        /* --- VMS PANEL (COMPACT PROPORTIONS V3) --- */
         .top-blink-controls {
             display: grid;
             grid-template-columns: 180px 1fr 180px;
@@ -87,7 +87,7 @@
             object-fit: contain;
         }
 
-        /* BOTÓN X INDIVIDUAL */
+        /* INDIVIDUAL X BUTTON */
         .remove-btn {
             position: absolute;
             top: 5px;
@@ -107,7 +107,7 @@
 
         .icon-slot:hover .remove-btn { display: block; }
 
-        /* --- TEXTO RECALIBRADO V3 --- */
+        /* --- RECALIBRATED TEXT V3 --- */
         .text-area {
             display: flex;
             flex-direction: column;
@@ -128,12 +128,12 @@
             text-shadow: 0 0 8px rgba(255, 204, 0, 0.4);
         }
 
-        /* --- MODO VISTA PREVIA --- */
+        /* --- PREVIEW MODE --- */
         .preview-mode .icon-slot { border: none !important; box-shadow: none !important; }
         .preview-mode .remove-btn { display: none !important; }
         .preview-mode .pmv-display { border-color: #000; }
 
-        /* --- CONTROLES DE EDICIÓN --- */
+        /* --- EDITING CONTROLS --- */
         .editor-grid {
             display: grid;
             grid-template-columns: 1fr 320px;
@@ -152,7 +152,7 @@
         }
         .btn-align.active { background: #3498db; color: white; border-color: #2980b9; }
         
-        /* Estilo Switch de Librería */
+        /* Bookshelf Switch Style */
         .btn-mode.active { background: #2c3e50; color: white; border-color: #1a252f; }
 
         .action-btn {
@@ -161,7 +161,7 @@
             transition: all 0.2s;
         }
 
-        /* SECCIÓN INFORMACIÓN */
+        /* INFORMATION SECTION */
         .info-section {
             margin-top: 25px;
             padding: 15px;
@@ -174,7 +174,7 @@
         }
         .info-section h3 { margin: 0 0 10px 0; font-size: 16px; color: #2980b9; }
 
-        /* LIBRERÍA */
+        /* LIBRARY */
         .grid-icons {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
             gap: 8px; max-height: 180px; overflow-y: auto; border: 1px solid #ddd; padding: 8px; margin-top: 10px;
@@ -184,12 +184,38 @@
         .lib-img:hover { transform: scale(1.1); }
         .blinking { animation: blinker 1s steps(1, start) infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
+
+        /* LANGUAGE BUTTON AT THE BOTTOM */
+        .lang-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .lang-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: #34495e;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+        }
+        .lang-btn:hover {
+            background: #2c3e50;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
     </style>
 </head>
 <body>
 
     <div class="main-card">
-        <h3 style="text-align:center; margin-top:0; color: #2c3e50; margin-bottom:15px;">VMS Designer v1.0.0</h3>
+        <h3 style="text-align:center; margin-top:0; color: #2c3e50; margin-bottom:15px;">VMS Designer Simulator v1.0.1</h3>
         
         <div class="top-blink-controls">
             <label class="inter-label"><input type="checkbox" id="chk-left" onchange="toggleBlink('slot-left', this)"> Blink</label>
@@ -230,7 +256,7 @@
 
                 <div style="margin-top: 15px; margin-bottom: 5px; display:flex; align-items:center; gap:8px;">
                     <span style="font-size:11px; font-weight:bold; color:#7f8c8d;">ICON SOURCE:</span>
-                    <button class="btn-mode active" id="mode-dgt" onclick="setLibraryMode('dgt')">Official icons Spain</button>
+                    <button class="btn-mode active" id="mode-dgt" onclick="setLibraryMode('dgt')">DGT (GitHub)</button>
                     <button class="btn-mode" id="mode-custom" onclick="setLibraryMode('custom')">Custom</button>
                 </div>
 
@@ -246,7 +272,7 @@
                     <button class="action-btn" style="background:#3498db" onclick="setTarget('right')">RIGHT</button>
                 </div>
                 <button class="action-btn" style="background:#2ecc71" onclick="togglePreview()">👁 PREVIEW</button>
-                <button class="action-btn" style="background:#e67e22" onclick="resetAll()">CLEAR ALL</button>
+                <button class="action-btn" style="background:#e67e22" onclick="resetAll()">❌ CLEAR ALL</button>
                 
                 <button id="btn-upload-local" class="action-btn" style="background:#95a5a6;" onclick="document.getElementById('file-input').click()">📁 UPLOAD FOLDER</button>
                 <input type="file" id="file-input" webkitdirectory directory multiple style="display:none" onchange="loadLocalIcons(this)">
@@ -255,15 +281,21 @@
 
         <div class="info-section">
             <h3>Information & Operation</h3>
-            <p><strong>What is this?</strong> A professional Variable Message Sign (VMS) simulator designed for road signage layout testing.</p>
-            <p><strong>How it works?</strong> Type your message text, select a target slot (Left/Right), and pick an icon from the active library. Use "Live Preview" to hide design guides.</p>
+            <p><strong>What is it:</strong> A professional Variable Message Sign (VMS) simulator designed for road signage layout testing.</p>
+            <p><strong>How it works:</strong> Type your message text, select a target slot (Left/Right), and pick an icon from the active library. Use "Live Preview" to hide design guides.</p>
             <p><strong>Credits:</strong> <a href="https://sites.google.com/view/elcarreteromc">https://sites.google.com/view/elcarreteromc</a></p>
         </div>
     </div>
 
+    <div class="lang-container">
+        <a href="https://elcarretero111-hub.github.io/simuladorpmv/" class="lang-btn">
+            🌐 Español
+        </a>
+    </div>
+
     <script>
         // ====================================================
-        // CONFIGURA AQUÍ TUS DATOS DE GITHUB PARA EL MODO DGT
+        // Configure your GitHub data for DGT mode here
         // ====================================================
         const GH_USER = 'elcarretero111-hub';
         const GH_REPO = 'simuladorpmv';
@@ -305,7 +337,7 @@
         
         function togglePreview() { document.getElementById('main-panel').classList.toggle('preview-mode'); }
 
-        // --- CONTROLADOR DEL SWITCH NUBE/LOCAL ---
+        // --- CLOUD/LOCAL SWITCH CONTROLLER ---
         function setLibraryMode(mode) {
             currentMode = mode;
             document.getElementById('mode-dgt').classList.toggle('active', mode === 'dgt');
@@ -315,21 +347,21 @@
             const grid = document.getElementById('lib-grid');
 
             if (mode === 'dgt') {
-                // Deshabilitar botón local de carga
+                // Disable local charging button
                 localBtn.disabled = true;
                 localBtn.style.opacity = '0.3';
                 localBtn.style.cursor = 'not-allowed';
                 fetchGitHubIcons();
             } else {
-                // Habilitar botón local de carga
+                // Enable local charging button
                 localBtn.disabled = false;
                 localBtn.style.opacity = '1';
                 localBtn.style.cursor = 'pointer';
-                grid.innerHTML = '<p style="color:#999; font-size:11px; padding: 10px;">Use the "UPLOAD FOLDER" button to import icons from your PC.</p>';
+                grid.innerHTML = '<p style="color:#999; font-size:11px; padding: 10px;">Custom mode active. Use the "UPLOAD FOLDER" button to import icons from your PC.</p>';
             }
         }
 
-        // --- CARGA CLOUD (GITHUB API) ---
+        // --- CLOUD UPLOAD (GITHUB API) ---
         async function fetchGitHubIcons() {
             const grid = document.getElementById('lib-grid');
             grid.innerHTML = '<p style="color:#999; font-size:11px;">Loading icons from GitHub Cloud...</p>';
@@ -366,7 +398,7 @@
             }
         }
 
-        // --- CARGA LOCAL ---
+        // --- LOCAL UPLOAD ---
         function loadLocalIcons(input) {
             const grid = document.getElementById('lib-grid');
             grid.innerHTML = '';
@@ -389,7 +421,7 @@
         }
 
         function resetAll() {
-            document.querySelectorAll('input[type="text"]').forEach(i => i.value = '');
+            document.querySelectorAll('input[type=\"text\"]').forEach(i => i.value = '');
             document.getElementById('chk-left').checked = false;
             document.getElementById('chk-text').checked = false;
             document.getElementById('chk-right').checked = false;
@@ -400,9 +432,9 @@
             sync();
         }
 
-        // Ejecución al iniciar
+        // Execution at startup
         setTarget('left');
-        setLibraryMode('dgt'); // Arranca en modo DGT por defecto
+        setLibraryMode('dgt'); // It starts in DGT mode by default.
     </script>
 </body>
 </html>
