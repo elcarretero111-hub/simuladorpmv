@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VMS VMS Simulator - Version 1.0.0 Dual Mode</title>
+    <style>
+        :root {
+            --panel-bg: #000;
+            --led-yellow: #ffcc00;
+            --ui-bg: #2c3e50;
+            --border-guide: 1px dashed #444;
+            --selection-blue: #0984e3;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--ui-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 10px;
+            box-sizing: border-box;
+        }
+
+        /* CONTENEDOR PRINCIPAL ESTILO V3 */
+        .main-card {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #bdc3c7;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            width: 95%;
+            max-width: 1100px;
+        }
+
+        /* --- PANEL PMV (PROPORCIONES COMPACTAS V3) --- */
+        .top-blink-controls {
+            display: grid;
+            grid-template-columns: 180px 1fr 180px;
+            margin-bottom: 6px;
+            padding: 0 5px;
+        }
+
+        .inter-label {
+            font-size: 11px;
+            font-weight: bold;
+            color: #7f8c8d;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .pmv-display {
+            background-color: var(--panel-bg);
+            width: 100%;
+            height: 180px;
+            display: grid;
+            grid-template-columns: 180px 1fr 180px;
+            border: 6px solid #1a1a1a;
+            border-radius: 4px;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .icon-slot {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-right: var(--border-guide);
+            border-left: var(--border-guide);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #slot-left { border-left: none; }
+        #slot-right { border-right: none; }
+
+        .icon-slot img {
+            width: 85%;
+            height: 85%;
+            object-fit: contain;
+        }
+
+        /* BOTÓN X INDIVIDUAL */
+        .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 18px;
+            height: 18px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 3px;
+            display: none;
+            z-index: 10;
+        }
+
+        .icon-slot:hover .remove-btn { display: block; }
+
+        /* --- TEXTO RECALIBRADO V3 --- */
+        .text-area {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: black;
+            padding: 5px 0;
+        }
+
+        .line {
+            color: var(--led-yellow);
+            font-family: 'Courier New', monospace;
+            font-size: 58px;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-align: center;
+            line-height: 0.9;
+            white-space: pre;
+            text-shadow: 0 0 8px rgba(255, 204, 0, 0.4);
+        }
+
+        /* --- MODO VISTA PREVIA --- */
+        .preview-mode .icon-slot { border: none !important; box-shadow: none !important; }
+        .preview-mode .remove-btn { display: none !important; }
+        .preview-mode .pmv-display { border-color: #000; }
+
+        /* --- CONTROLES DE EDICIÓN --- */
+        .editor-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .input-group { margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+        .input-group input { 
+            flex: 1; padding: 8px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace;
+        }
+
+        .btn-align, .btn-mode { 
+            padding: 6px 12px; background: #ecf0f1; border: 1px solid #bdc3c7; cursor: pointer; font-size: 12px; font-weight: bold; color: #555;
+        }
+        .btn-align.active { background: #3498db; color: white; border-color: #2980b9; }
+        
+        /* Estilo Switch de Librería */
+        .btn-mode.active { background: #2c3e50; color: white; border-color: #1a252f; }
+
+        .action-btn {
+            width: 100%; padding: 10px; margin-bottom: 8px; border: none; border-radius: 5px; 
+            font-weight: bold; cursor: pointer; color: white; font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        /* SECCIÓN INFORMACIÓN */
+        .info-section {
+            margin-top: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            color: #2c3e50;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .info-section h3 { margin: 0 0 10px 0; font-size: 16px; color: #2980b9; }
+
+        /* LIBRERÍA */
+        .grid-icons {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 8px; max-height: 180px; overflow-y: auto; border: 1px solid #ddd; padding: 8px; margin-top: 10px;
+            background: #fafafa;
+        }
+        .lib-img { width: 100%; cursor: pointer; transition: transform 0.1s; }
+        .lib-img:hover { transform: scale(1.1); }
+        .blinking { animation: blinker 1s steps(1, start) infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <div class="main-card">
+        <h3 style="text-align:center; margin-top:0; color: #2c3e50; margin-bottom:15px;">VMS Designer v1.0.0</h3>
+        
+        <div class="top-blink-controls">
+            <label class="inter-label"><input type="checkbox" id="chk-left" onchange="toggleBlink('slot-left', this)"> Blink</label>
+            <label class="inter-label" style="justify-content:center;"><input type="checkbox" id="chk-text" onchange="toggleBlink('text-container', this)"> Text Blink</label>
+            <label class="inter-label" style="justify-content:right;"><input type="checkbox" id="chk-right" onchange="toggleBlink('slot-right', this)"> Blink</label>
+        </div>
+
+        <div class="pmv-display" id="main-panel">
+            <div class="icon-slot" id="slot-left" onclick="setTarget('left')">
+                <button class="remove-btn" onclick="clearIcon('left', event)">x</button>
+                <img id="img-left" src="" style="display:none">
+            </div>
+
+            <div class="text-area" id="text-container">
+                <div class="line" id="v1"></div>
+                <div class="line" id="v2"></div>
+                <div class="line" id="v3"></div>
+            </div>
+
+            <div class="icon-slot" id="slot-right" onclick="setTarget('right')">
+                <button class="remove-btn" onclick="clearIcon('right', event)">x</button>
+                <img id="img-right" src="" style="display:none">
+            </div>
+        </div>
+
+        <div class="editor-grid">
+            <div>
+                <div style="margin-bottom: 12px; display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:11px; font-weight:bold; color:#7f8c8d;">ALIGNMENT:</span>
+                    <button class="btn-align" onclick="setAlign('left')" id="al-left">Left</button>
+                    <button class="btn-align active" onclick="setAlign('center')" id="al-center">Center</button>
+                    <button class="btn-align" onclick="setAlign('right')" id="al-right">Right</button>
+                </div>
+                
+                <div class="input-group"><input type="text" id="i1" maxlength="12" placeholder="Line 1" oninput="sync()"><span id="c1">12</span></div>
+                <div class="input-group"><input type="text" id="i2" maxlength="12" placeholder="Line 2" oninput="sync()"><span id="c2">12</span></div>
+                <div class="input-group"><input type="text" id="i3" maxlength="12" placeholder="Line 3" oninput="sync()"><span id="c3">12</span></div>
+
+                <div style="margin-top: 15px; margin-bottom: 5px; display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:11px; font-weight:bold; color:#7f8c8d;">ICON SOURCE:</span>
+                    <button class="btn-mode active" id="mode-dgt" onclick="setLibraryMode('dgt')">DGT (GitHub)</button>
+                    <button class="btn-mode" id="mode-custom" onclick="setLibraryMode('custom')">Custom</button>
+                </div>
+
+                <div class="grid-icons" id="lib-grid">
+                    <p style="color:#999; font-size:11px;">Connecting to GitHub library...</p>
+                </div>
+            </div>
+
+            <div>
+                <p style="font-size:12px; margin-bottom:10px;">Editing: <strong id="target-text" style="color:#3498db">LEFT SIDE</strong></p>
+                <div style="display:flex; gap:5px; margin-bottom:15px;">
+                    <button class="action-btn" style="background:#3498db" onclick="setTarget('left')">LEFT</button>
+                    <button class="action-btn" style="background:#3498db" onclick="setTarget('right')">RIGHT</button>
+                </div>
+                <button class="action-btn" style="background:#2ecc71" onclick="togglePreview()">👁 LIVE PREVIEW</button>
+                <button class="action-btn" style="background:#e67e22" onclick="resetAll()">CLEAR ALL</button>
+                
+                <button id="btn-upload-local" class="action-btn" style="background:#95a5a6;" onclick="document.getElementById('file-input').click()">📁 UPLOAD FOLDER</button>
+                <input type="file" id="file-input" webkitdirectory directory multiple style="display:none" onchange="loadLocalIcons(this)">
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>Information & Operation</h3>
+            <p><strong>What is it:</strong> A professional Variable Message Sign (VMS) simulator designed for road signage layout testing.</p>
+            <p><strong>How it works:</strong> Type your message text, select a target slot (Left/Right), and pick an icon from the active library. Use "Live Preview" to hide design guides.</p>
+            <p><strong>Credits:</strong> Technical tool based on the official traffic control sign catalog.</p>
+        </div>
+    </div>
+
+    <script>
+        // ====================================================
+        // CONFIGURA AQUÍ TUS DATOS DE GITHUB PARA EL MODO DGT
+        // ====================================================
+        const GH_USER = 'elcarretero111-hub';
+        const GH_REPO = 'simuladorpmv';
+        const GH_FOLDER = 'iconos'; 
+
+        let targetSide = 'left';
+        let currentMode = 'dgt';
+
+        function sync() {
+            for(let i=1; i<=3; i++) {
+                const val = document.getElementById('i'+i).value.toUpperCase();
+                document.getElementById('v'+i).innerText = val;
+                document.getElementById('c1').innerText = 12 - document.getElementById('i1').value.length;
+                document.getElementById('c2').innerText = 12 - document.getElementById('i2').value.length;
+                document.getElementById('c3').innerText = 12 - document.getElementById('i3').value.length;
+            }
+        }
+
+        function setAlign(a) {
+            document.querySelectorAll('.line').forEach(l => l.style.textAlign = a);
+            document.querySelectorAll('.btn-align').forEach(b => b.classList.remove('active'));
+            document.getElementById('al-'+a).classList.add('active');
+        }
+
+        function setTarget(s) {
+            targetSide = s;
+            document.getElementById('target-text').innerText = s === 'left' ? 'LEFT SIDE' : 'RIGHT SIDE';
+            document.getElementById('slot-left').style.boxShadow = s === 'left' ? 'inset 0 0 12px #0984e3' : 'none';
+            document.getElementById('slot-right').style.boxShadow = s === 'right' ? 'inset 0 0 12px #0984e3' : 'none';
+        }
+
+        function clearIcon(side, e) {
+            if(e) e.stopPropagation();
+            const img = document.getElementById('img-'+side);
+            img.src = ''; img.style.display = 'none';
+        }
+
+        function toggleBlink(id, cb) { document.getElementById(id).classList.toggle('blinking', cb.checked); }
+        
+        function togglePreview() { document.getElementById('main-panel').classList.toggle('preview-mode'); }
+
+        // --- CONTROLADOR DEL SWITCH NUBE/LOCAL ---
+        function setLibraryMode(mode) {
+            currentMode = mode;
+            document.getElementById('mode-dgt').classList.toggle('active', mode === 'dgt');
+            document.getElementById('mode-custom').classList.toggle('active', mode === 'custom');
+            
+            const localBtn = document.getElementById('btn-upload-local');
+            const grid = document.getElementById('lib-grid');
+
+            if (mode === 'dgt') {
+                // Deshabilitar botón local de carga
+                localBtn.disabled = true;
+                localBtn.style.opacity = '0.3';
+                localBtn.style.cursor = 'not-allowed';
+                fetchGitHubIcons();
+            } else {
+                // Habilitar botón local de carga
+                localBtn.disabled = false;
+                localBtn.style.opacity = '1';
+                localBtn.style.cursor = 'pointer';
+                grid.innerHTML = '<p style="color:#999; font-size:11px; padding: 10px;">Custom mode active. Use the "UPLOAD FOLDER" button to import icons from your PC.</p>';
+            }
+        }
+
+        // --- CARGA CLOUD (GITHUB API) ---
+        async function fetchGitHubIcons() {
+            const grid = document.getElementById('lib-grid');
+            grid.innerHTML = '<p style="color:#999; font-size:11px;">Loading icons from GitHub Cloud...</p>';
+            
+            const apiUrl = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FOLDER}`;
+            
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error();
+                
+                const files = await response.json();
+                grid.innerHTML = ''; 
+                
+                const images = files.filter(f => f.name.match(/\.(png|jpe?g|gif|svg|webp)$/i)).sort((a,b)=>a.name.localeCompare(b.name));
+                
+                if(images.length === 0) {
+                    grid.innerHTML = '<p style="color:red; font-size:11px;">Empty folder on GitHub.</p>';
+                    return;
+                }
+
+                images.forEach(file => {
+                    const img = document.createElement('img');
+                    img.src = file.download_url; 
+                    img.className = 'lib-img';
+                    img.title = file.name.split('.')[0];
+                    img.onclick = () => {
+                        const target = document.getElementById('img-'+targetSide);
+                        target.src = file.download_url; target.style.display = 'block';
+                    };
+                    grid.appendChild(img);
+                });
+            } catch (e) {
+                grid.innerHTML = '<p style="color:#e74c3c; font-size:11px;">⚠️ Please configure your repository credentials on lines 174-176 of the code.</p>';
+            }
+        }
+
+        // --- CARGA LOCAL ---
+        function loadLocalIcons(input) {
+            const grid = document.getElementById('lib-grid');
+            grid.innerHTML = '';
+            
+            const files = Array.from(input.files).filter(f => f.type.startsWith('image/')).sort((a,b)=>a.name.localeCompare(b.name));
+            
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result; img.className = 'lib-img';
+                    img.onclick = () => {
+                        const target = document.getElementById('img-'+targetSide);
+                        target.src = e.target.result; target.style.display = 'block';
+                    };
+                    grid.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function resetAll() {
+            document.querySelectorAll('input[type="text"]').forEach(i => i.value = '');
+            document.getElementById('chk-left').checked = false;
+            document.getElementById('chk-text').checked = false;
+            document.getElementById('chk-right').checked = false;
+            document.getElementById('slot-left').classList.remove('blinking');
+            document.getElementById('text-container').classList.remove('blinking');
+            document.getElementById('slot-right').classList.remove('blinking');
+            clearIcon('left'); clearIcon('right');
+            sync();
+        }
+
+        // Ejecución al iniciar
+        setTarget('left');
+        setLibraryMode('dgt'); // Arranca en modo DGT por defecto
+    </script>
+</body>
+</html>
