@@ -184,12 +184,38 @@
         .lib-img:hover { transform: scale(1.1); }
         .blinking { animation: blinker 1s steps(1, start) infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
+
+        /* BOTÓN DE IDIOMA EN LA PARTE INFERIOR */
+        .lang-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .lang-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: #34495e;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+        }
+        .lang-btn:hover {
+            background: #2c3e50;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
     </style>
 </head>
 <body>
 
     <div class="main-card">
-        <h3 style="text-align:center; margin-top:0; color: #2c3e50; margin-bottom:15px;">Diseñador PMV DGT v1.0.0</h3>
+        <h3 style="text-align:center; margin-top:0; color: #2c3e50; margin-bottom:15px;">Diseñador PMV DGT v1.0.1</h3>
         
         <div class="top-blink-controls">
             <label class="inter-label"><input type="checkbox" id="chk-left" onchange="toggleBlink('slot-left', this)"> Inter.</label>
@@ -246,7 +272,7 @@
                     <button class="action-btn" style="background:#3498db" onclick="setTarget('right')">DER.</button>
                 </div>
                 <button class="action-btn" style="background:#2ecc71" onclick="togglePreview()">👁 VISTA PREVIA</button>
-                <button class="action-btn" style="background:#e67e22" onclick="resetAll()">❌ LIMPIAR TODO</button>
+                <button class="action-btn" style="background:#e67e22" onclick="resetAll()">LIMPIAR TODO</button>
                 
                 <button id="btn-upload-local" class="action-btn" style="background:#95a5a6;" onclick="document.getElementById('file-input').click()">📁 CARGAR CARPETA</button>
                 <input type="file" id="file-input" webkitdirectory directory multiple style="display:none" onchange="loadLocalIcons(this)">
@@ -255,10 +281,16 @@
 
         <div class="info-section">
             <h3>Información y Funcionamiento</h3>
-            <p><strong>¿Qué es?</strong> Simulador profesional de Paneles de Mensaje Variable para diseño de señalización vial.</p>
-            <p><strong>¿Cómo funciona?</strong> Escribe el texto deseado, selecciona el slot (Izq/Der) y elige un icono de la librería. Usa la "Vista Previa" para eliminar guías visuales.</p>
+            <p><strong>Qué es:</strong> Simulador profesional de Paneles de Mensaje Variable para diseño de señalización vial.</p>
+            <p><strong>Cómo funciona:</strong> Escribe el texto deseado, selecciona el slot (Izq/Der) y elige un icono de la librería. Usa la "Vista Previa" para eliminar guías visuales.</p>
             <p><strong>Créditos:</strong> <a href="https://sites.google.com/view/elcarreteromc">https://sites.google.com/view/elcarreteromc</a></p>
         </div>
+    </div>
+
+    <div class="lang-container">
+        <a href="https://elcarretero111-hub.github.io/simuladorpmv/en/" class="lang-btn">
+            🌐 English
+        </a>
     </div>
 
     <script>
@@ -267,7 +299,7 @@
         // ====================================================
         const GH_USER = 'elcarretero111-hub';
         const GH_REPO = 'simuladorpmv';
-        const GH_FOLDER = 'iconos';
+        const GH_FOLDER = 'iconos'; 
 
         let targetSide = 'left';
         let currentMode = 'dgt';
