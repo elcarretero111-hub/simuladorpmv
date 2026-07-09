@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diseñador PMV DGT v1.1.0</title>
+<style>
+    /* ==================== BASE ==================== */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: 'Inter', 'Segoe UI', system-ui, Arial, sans-serif;
+        background: #2C3E50;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 20px 10px;
+        color: #000;
+    }
+
+    .main-card {
+        width: 1078px;
+        max-width: 100%;
+        background: #FFFFFF;
+        border: 1px solid #BDC3C7;
+        border-radius: 10px;
+        padding: 16px 24px 20px 24px;
+    }
+
+    h1.title {
+        text-align: center;
+        font-size: 20px;
+        font-weight: 800;
+        margin-bottom: 14px;
+        color: #000;
+    }
+
+    /* ==================== CHECKBOXES INTER. ==================== */
+    .top-blink-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        margin-bottom: 6px;
+    }
+    .inter-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        user-select: none;
+    }
+    .inter-label.center { justify-content: center; }
+    .inter-label.right  { justify-content: flex-end; }
+
+    .inter-label input[type="checkbox"] {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 13px;
+        height: 13px;
+        background: #D9D9D9;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        flex-shrink: 0;
+    }
+    .inter-label input[type="checkbox"]:checked { background: #3498DB; }
+    .inter-label input[type="checkbox"]:checked::after {
+        content: '✓';
+        position: absolute;
+        inset: 0;
+        color: #fff;
+        font-size: 11px;
+        line-height: 13px;
+        text-align: center;
+        font-weight: 700;
+    }
+
+    /* ==================== PANEL PMV ==================== */
+    .pmv-display {
+        position: relative;
+        width: 100%;
+        height: 303px;
+        background: #272425;
+        border: 1px solid #565455;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    /* Marco blanco redondeado del panel físico */
+    .pmv-frame {
+        position: absolute;
+        inset: 8px;
+        border: 5px solid #FFFFFF;
+        border-radius: 22px;
+        pointer-events: none;
+        z-index: 3;
+    }
+    .pmv-inner {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 30px 29px 0 29px;
+    }
+
+    /* --- Slots de icono 244x244 --- */
+    .icon-slot {
+        position: relative;
+        width: 244px;
+        height: 244px;
+        flex-shrink: 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    /* Guía punteada cuando el slot está vacío */
+    .icon-slot .slot-guide {
+        position: absolute;
+        inset: 4px;
+        border: 2px dashed rgba(255,255,255,0.25);
+        pointer-events: none;
+    }
+    .icon-slot.has-icon .slot-guide { display: none; }
+    .icon-slot img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        image-rendering: pixelated;
+    }
+    /* Borde cian de selección (slot en edición) */
+    .icon-slot.selected::after {
+        content: '';
+        position: absolute;
+        inset: 4px;
+        border: 9px solid #00FFFB;
+        pointer-events: none;
+        z-index: 2;
+    }
+    .remove-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        z-index: 4;
+        background: #e74c3c;
+        color: #fff;
+        border: none;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        display: none;
+        line-height: 22px;
+        text-align: center;
+    }
+    .icon-slot:hover .remove-btn { display: block; }
+
+    /* --- Zona de texto 482x243 con 3 filas --- */
+    .text-area {
+        width: 482px;
+        height: 243px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 16px 0;
+        border: 1px solid rgba(0,0,0,0.85);
+    }
+    .line {
+        height: 59px;
+        border: 1px solid rgba(0,0,0,0.85);
+        background: rgba(255,255,255,0.04);
+        color: #E5E569;
+        font-size: 50px;
+        font-weight: 400;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        text-align: center;
+        line-height: 57px;
+        white-space: pre;
+        overflow: hidden;
+    }
+
+    /* Logo DGT abajo a la izquierda */
+    .dgt-logo {
+        position: absolute;
+        left: 48px;
+        bottom: 18px;
+        z-index: 4;
+    }
+
+    /* --- Modo VISTA PREVIA: elimina guías visuales --- */
+    .preview-mode .slot-guide { display: none !important; }
+    .preview-mode .icon-slot.selected::after { display: none !important; }
+    .preview-mode .remove-btn { display: none !important; }
+    .preview-mode .text-area { border-color: transparent; }
+    .preview-mode .line { border-color: transparent; background: transparent; }
+
+    /* --- Intermitencias --- */
+    .blinking { animation: blinker 1s steps(1, start) infinite; }
+    @keyframes blinker { 50% { opacity: 0; } }
+
+    /* ==================== EDITOR (dos columnas) ==================== */
+    .editor-grid {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        margin-top: 16px;
+    }
+    .col-left  { width: 711px; max-width: 100%; }
+    .col-right {
+        width: 301px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .row-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+    .row-label span.lbl {
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.3px;
+    }
+
+    /* Botones de alineación y origen (pequeños) */
+    .btn-sm {
+        height: 25px;
+        padding: 0 12px;
+        font-size: 13px;
+        font-family: inherit;
+        background: #ECF0F1;
+        border: 1px solid #BDC3C7;
+        color: #000;
+        cursor: pointer;
+    }
+    .btn-sm.active-blue {
+        background: #3498DB;
+        border-color: #2980B9;
+        color: #fff;
+    }
+    .btn-sm.active-dark {
+        background: #2C3E50;
+        border-color: #1A252F;
+        color: #fff;
+    }
+
+    /* Inputs de texto */
+    .input-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+    }
+    .input-group input {
+        width: 689px;
+        max-width: calc(100% - 30px);
+        height: 33px;
+        border: 1px solid #CCCCCC;
+        border-radius: 4px;
+        padding: 0 12px;
+        font-size: 14px;
+        font-family: inherit;
+        outline: none;
+    }
+    .input-group input:focus { border-color: #3498DB; }
+    .input-group .counter {
+        font-size: 14px;
+        width: 18px;
+        text-align: center;
+    }
+
+    /* Grid de iconos */
+    .grid-icons {
+        width: 711px;
+        max-width: 100%;
+        height: 186px;
+        border: 1px solid #DDDDDD;
+        background: #fff;
+        overflow-y: auto;
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 4px;
+        padding: 4px;
+        align-content: start;
+        margin-top: 10px;
+    }
+    .grid-icons p { grid-column: 1 / -1; padding: 8px; }
+    .lib-img {
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: contain;
+        cursor: pointer;
+        transition: transform 0.1s;
+    }
+    .lib-img:hover { transform: scale(1.1); }
+
+    /* ==================== COLUMNA DERECHA ==================== */
+    .editing-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 18px;
+    }
+    .editing-row .editing-lbl {
+        font-size: 13px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+    .editing-row .editing-lbl strong { color: #3498DB; font-weight: 800; }
+
+    .btn-slot {
+        width: 71px;
+        height: 34px;
+        border: none;
+        border-radius: 5px;
+        background: #3498DB;
+        color: #fff;
+        font-size: 15px;
+        font-family: inherit;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+    .btn-slot:hover { background: #2980B9; }
+
+    .action-btn {
+        width: 100%;
+        height: 36px;
+        border: none;
+        border-radius: 5px;
+        font-size: 15px;
+        font-family: inherit;
+        font-weight: 500;
+        color: #fff;
+        cursor: pointer;
+        margin-bottom: 6px;
+        letter-spacing: 0.3px;
+    }
+    .action-btn:hover { filter: brightness(0.94); }
+    .btn-green  { background: #2ECC71; }
+    .btn-orange { background: #E67E22; }
+    .btn-yellow { background: #E6C522; }
+    .btn-gray   { background: #DFE4E4; color: #000; }
+
+    .bottom-row {
+        margin-top: auto;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+    }
+    .bottom-row .action-btn { margin-bottom: 0; flex: 1; }
+
+    /* ==================== MODALES ==================== */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(163, 172, 180, 0.55);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+        padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal-box {
+        position: relative;
+        width: 636px;
+        max-width: 100%;
+        min-height: 420px;
+        background: #fff;
+        border-radius: 16px;
+        padding: 28px 44px 36px 44px;
+        display: flex;
+        flex-direction: column;
+    }
+    .modal-back {
+        position: absolute;
+        top: 24px;
+        left: 28px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+        line-height: 0;
+    }
+    .modal-back svg { display: block; }
+    .modal-title {
+        text-align: center;
+        font-size: 20px;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+    .modal-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        font-size: 17px;
+        line-height: 1.5;
+    }
+    .modal-body p { margin-bottom: 18px; }
+    .modal-body a { color: #3498DB; text-decoration: none; }
+    .modal-body a:hover { text-decoration: underline; }
+
+    .modal-body.centered {
+        align-items: center;
+        text-align: center;
+    }
+    .modal-body.centered .dl-icon { margin-bottom: 60px; }
+    .modal-body.centered h3 { font-size: 21px; font-weight: 800; margin-bottom: 14px; }
+
+    /* ==================== RESPONSIVE BÁSICO ==================== */
+    @media (max-width: 1100px) {
+        .editor-grid { flex-wrap: wrap; }
+        .col-right { width: 100%; }
+        .bottom-row { margin-top: 12px; }
+    }
+</style>
+</head>
+<body>
+
+<div class="main-card">
+    <h1 class="title">Diseñador PMV DGT v1.1.0</h1>
+
+    <!-- Checkboxes de intermitencia -->
+    <div class="top-blink-controls">
+        <label class="inter-label"><input type="checkbox" id="chk-left" onchange="toggleBlink('slot-left', this)"> Inter.</label>
+        <label class="inter-label center"><input type="checkbox" id="chk-text" onchange="toggleBlink('text-container', this)"> Inter. Texto</label>
+        <label class="inter-label right"><input type="checkbox" id="chk-right" onchange="toggleBlink('slot-right', this)"> Inter.</label>
+    </div>
+
+    <!-- Panel PMV -->
+    <div class="pmv-display" id="main-panel">
+        <div class="pmv-frame"></div>
+        <div class="pmv-inner">
+            <div class="icon-slot" id="slot-left" onclick="setTarget('left')">
+                <div class="slot-guide"></div>
+                <button class="remove-btn" onclick="clearIcon('left', event)">x</button>
+                <img id="img-left" src="" alt="" style="display:none">
+            </div>
+
+            <div class="text-area" id="text-container">
+                <div class="line" id="v1"></div>
+                <div class="line" id="v2"></div>
+                <div class="line" id="v3"></div>
+            </div>
+
+            <div class="icon-slot" id="slot-right" onclick="setTarget('right')">
+                <div class="slot-guide"></div>
+                <button class="remove-btn" onclick="clearIcon('right', event)">x</button>
+                <img id="img-right" src="" alt="" style="display:none">
+            </div>
+        </div>
+
+        <!-- Logo DGT -->
+        <svg class="dgt-logo" width="47" height="22" viewBox="249 360 42 20" xmlns="http://www.w3.org/2000/svg">
+            <path d="M282.834 373.8C282.869 373.695 284.636 367.602 284.664 367.492L284.684 367.409H283.387L282.108 367.409C282.108 366.103 282.632 365.911 282.942 365.911H286.262C288.879 365.911 288.834 365.911 289 365.911C288.601 367.409 289 365.911 288.601 367.409H287.445H286.288L286.245 367.559C286.221 367.641 285.802 369.098 285.313 370.795L284.425 373.882H283.616H282.807L282.834 373.8Z" fill="white"/>
+            <path d="M274.828 373.838C274.359 373.735 274.083 373.461 274.009 373.024C273.978 372.845 273.98 372.774 274.019 372.575C274.114 372.102 275.353 367.852 275.458 367.64C275.894 366.764 276.592 366.231 277.627 365.982C277.806 365.939 278.084 365.93 279.627 365.919L281.421 365.919C281.421 366.717 281.143 367.398 280.691 367.424L279.337 367.441C278.189 367.456 277.957 367.466 277.805 367.509C277.553 367.582 277.286 367.719 277.133 367.855C276.873 368.088 276.853 368.14 276.231 370.332C275.913 371.452 275.655 372.37 275.659 372.374C275.662 372.377 276.146 372.384 276.735 372.389L277.805 372.399C278.198 372.399 278.434 371.996 278.806 370.736C278.105 370.736 278.254 370.736 278.105 370.736H277.394C277.394 370.736 277.446 370.564 277.498 370.429C277.611 370.134 277.855 369.724 278.193 369.724C279.419 369.723 279.011 369.723 279.419 369.723C280.094 369.718 279.419 369.723 280.649 369.724C280.649 369.724 280.458 370.404 280.228 371.197C279.758 372.813 279.722 372.9 279.369 373.255C279.065 373.562 278.7 373.751 278.242 373.84C277.937 373.899 275.099 373.897 274.828 373.838Z" fill="white"/>
+            <path d="M265.693 373.873L266.771 370.106C267.353 368.071 267.864 366.294 267.904 366.158L267.978 365.911H269.769C270.891 365.911 271.731 365.914 271.966 365.933C273.7 366.147 274.091 367.377 273.492 369.777C273.216 370.886 272.89 371.699 272.505 372.239C272.353 372.452 272.009 372.818 271.797 372.992C271.478 373.253 270.895 373.579 270.532 373.699C269.875 373.915 270.05 373.874 267.789 373.874L265.693 373.873ZM269.559 372.382C270.278 372.328 270.657 372.189 271.011 371.853C271.415 371.469 271.693 370.882 271.961 369.846C272.307 368.509 272.225 367.825 271.687 367.563C271.401 367.423 271.22 367.406 270.12 367.416L269.127 367.424L268.417 369.897C268.026 371.256 267.707 372.379 267.707 372.391C267.707 372.425 269.089 372.418 269.559 372.382Z" fill="white"/>
+            <path d="M251.534 368.908L251 370.915H264.484L265.018 368.908H251.534Z" fill="white"/>
+            <path d="M260.317 371.904C256.986 371.904 256.324 371.911 256.037 371.949C254.716 372.124 253.633 372.751 252.928 373.75C252.592 374.225 252.493 374.477 251.973 376.169C251.71 377.022 251.489 377.778 251.505 377.778H254.409H257.323C257.488 377.215 257.643 376.649 257.803 376.085C258.162 374.806 258.23 374.61 258.389 374.4C258.512 374.236 258.794 374.041 259.017 373.965C259.213 373.898 259.229 373.898 261.457 373.883L263.699 373.867L264.221 371.904H260.317Z" fill="white"/>
+            <path d="M255.712 367.874C259.043 367.874 259.705 367.867 259.993 367.829C261.313 367.654 262.397 367.027 263.102 366.028C263.437 365.553 263.536 365.302 264.057 363.609C264.319 362.756 264.54 362 264.524 362H261.62H258.706C258.541 362.563 258.386 363.129 258.226 363.693C257.868 364.972 257.8 365.168 257.641 365.378C257.517 365.542 257.235 365.737 257.013 365.813C256.816 365.88 256.8 365.88 254.573 365.896L252.331 365.911L251.809 367.874H255.712Z" fill="white"/>
+        </svg>
+    </div>
+
+    <!-- Editor -->
+    <div class="editor-grid">
+
+        <!-- Columna izquierda -->
+        <div class="col-left">
+            <div class="row-label">
+                <span class="lbl">ALINEACIÓN:</span>
+                <button class="btn-sm" id="al-left" onclick="setAlign('left')">Izq.</button>
+                <button class="btn-sm active-blue" id="al-center" onclick="setAlign('center')">Centro</button>
+                <button class="btn-sm" id="al-right" onclick="setAlign('right')">Der.</button>
+            </div>
+
+            <div class="input-group"><input type="text" id="i1" maxlength="12" placeholder="Línea 1" oninput="sync()"><span class="counter" id="c1">12</span></div>
+            <div class="input-group"><input type="text" id="i2" maxlength="12" placeholder="Línea 2" oninput="sync()"><span class="counter" id="c2">12</span></div>
+            <div class="input-group"><input type="text" id="i3" maxlength="12" placeholder="Línea 3" oninput="sync()"><span class="counter" id="c3">12</span></div>
+
+            <div class="row-label" style="margin-top:14px; margin-bottom:0;">
+                <span class="lbl">ORIGEN ICONOS:</span>
+                <button class="btn-sm active-dark" id="mode-dgt" onclick="setLibraryMode('dgt')">Oficiales DGT</button>
+                <button class="btn-sm" id="mode-custom" onclick="setLibraryMode('custom')">Personalizado</button>
+            </div>
+
+            <div class="grid-icons" id="lib-grid">
+                <p style="color:#999; font-size:12px;">Conectando con la biblioteca de GitHub...</p>
+            </div>
+        </div>
+
+        <!-- Columna derecha -->
+        <div class="col-right">
+            <div class="editing-row">
+                <span class="editing-lbl">EDITANDO: <strong id="target-text">IZQUIERDO</strong></span>
+                <button class="btn-slot" onclick="setTarget('left')">IZQ.</button>
+                <button class="btn-slot" onclick="setTarget('right')">DER.</button>
+            </div>
+
+            <button class="action-btn btn-green"  onclick="togglePreview()">VISTA PREVIA</button>
+            <button class="action-btn btn-orange" onclick="resetAll()">LIMPIAR TODO</button>
+            <button class="action-btn btn-yellow" id="btn-upload-local" onclick="document.getElementById('file-input').click()">CARGAR CARPETA</button>
+            <input type="file" id="file-input" webkitdirectory directory multiple style="display:none" onchange="loadLocalIcons(this)">
+            <button class="action-btn btn-gray" onclick="openModal('modal-download')">DESCARGAR</button>
+
+            <div class="bottom-row">
+                <button class="action-btn btn-gray" onclick="openModal('modal-info')">INFORMACIÓN</button>
+                <button class="action-btn btn-gray" onclick="window.open('https://elcarretero111-hub.github.io/simuladorpmv/en/', '_blank')">ENGLISH</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL INFORMACIÓN ==================== -->
+<div class="modal-overlay" id="modal-info" onclick="overlayClose(event, 'modal-info')">
+    <div class="modal-box">
+        <button class="modal-back" onclick="closeModal('modal-info')" aria-label="Volver">
+            <svg width="34" height="24" viewBox="0 0 38 26" fill="#000"><path d="M13 0 L16.2 3.2 L8.4 11 H38 V15 H8.4 L16.2 22.8 L13 26 L0 13 Z"/></svg>
+        </button>
+        <div class="modal-title">Información</div>
+        <div class="modal-body">
+            <p><strong>¿Qué es?</strong> Simulador profesional de Paneles de Mensaje Variable para diseño de señalización vial.</p>
+            <p><strong>¿Cómo funciona?</strong> Escribe el texto deseado, selecciona el slot (Izq/Der) y elige un icono de la librería. Usa la "Vista Previa" para eliminar guías visuales.</p>
+            <p><strong>Créditos:</strong> <a href="https://sites.google.com/view/elcarreteromc" target="_blank">https://sites.google.com/view/elcarreteromc</a></p>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL DESCARGAR ==================== -->
+<div class="modal-overlay" id="modal-download" onclick="overlayClose(event, 'modal-download')">
+    <div class="modal-box">
+        <button class="modal-back" onclick="closeModal('modal-download')" aria-label="Volver">
+            <svg width="34" height="24" viewBox="0 0 38 26" fill="#000"><path d="M13 0 L16.2 3.2 L8.4 11 H38 V15 H8.4 L16.2 22.8 L13 26 L0 13 Z"/></svg>
+        </button>
+        <div class="modal-title">Descargar</div>
+        <div class="modal-body centered">
+            <!-- Icono de obras -->
+            <svg class="dl-icon" width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <rect width="100" height="100" rx="20" fill="#000000"/>
+                <path d="M50 12 L93 84 L7 84 Z" fill="#FFE01A" stroke="#E53026" stroke-width="9" stroke-linejoin="round"/>
+                <circle cx="61" cy="44" r="5.5" fill="#000"/>
+                <path d="M50 54 L58 50 L63 58 L57 78 L50 78 L54 64 L45 59 Z" fill="#000"/>
+                <path d="M44 74 L69 59 L71 62 L46 77 Z" fill="#000"/>
+                <path d="M60 78 L84 78 Q77 64 65 63 Z" fill="#000"/>
+            </svg>
+            <h3>¡Próximamente!</h3>
+            <p style="max-width:520px;">Pronto podrás descargar a través de .svg o .png los mensajes variables. Este botón es una prueba.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ====================================================
+    // CONFIGURA AQUÍ TUS DATOS DE GITHUB PARA EL MODO DGT
+    // ====================================================
+    const GH_USER = 'elcarretero111-hub';
+    const GH_REPO = 'simuladorpmv';
+    const GH_FOLDER = 'iconos';
+
+    let targetSide = 'left';
+    let currentMode = 'dgt';
+
+    // --- TEXTO Y CONTADORES ---
+    function sync() {
+        for (let i = 1; i <= 3; i++) {
+            const val = document.getElementById('i' + i).value.toUpperCase();
+            document.getElementById('v' + i).innerText = val;
+            document.getElementById('c' + i).innerText = 12 - document.getElementById('i' + i).value.length;
+        }
+    }
+
+    // --- ALINEACIÓN ---
+    function setAlign(a) {
+        document.querySelectorAll('.line').forEach(l => l.style.textAlign = a);
+        document.querySelectorAll('#al-left, #al-center, #al-right').forEach(b => b.classList.remove('active-blue'));
+        document.getElementById('al-' + a).classList.add('active-blue');
+    }
+
+    // --- SELECCIÓN DE SLOT (borde cian) ---
+    function setTarget(s) {
+        targetSide = s;
+        document.getElementById('target-text').innerText = s === 'left' ? 'IZQUIERDO' : 'DERECHO';
+        document.getElementById('slot-left').classList.toggle('selected', s === 'left');
+        document.getElementById('slot-right').classList.toggle('selected', s === 'right');
+    }
+
+    function setSlotIcon(side, src) {
+        const slot = document.getElementById('slot-' + side);
+        const img = document.getElementById('img-' + side);
+        img.src = src;
+        img.style.display = 'block';
+        slot.classList.add('has-icon');
+    }
+
+    function clearIcon(side, e) {
+        if (e) e.stopPropagation();
+        const slot = document.getElementById('slot-' + side);
+        const img = document.getElementById('img-' + side);
+        img.src = '';
+        img.style.display = 'none';
+        slot.classList.remove('has-icon');
+    }
+
+    // --- INTERMITENCIAS Y VISTA PREVIA ---
+    function toggleBlink(id, cb) { document.getElementById(id).classList.toggle('blinking', cb.checked); }
+    function togglePreview() { document.getElementById('main-panel').classList.toggle('preview-mode'); }
+
+    // --- MODALES ---
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+    function overlayClose(e, id) { if (e.target === document.getElementById(id)) closeModal(id); }
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+    });
+
+    // --- SWITCH NUBE / LOCAL ---
+    function setLibraryMode(mode) {
+        currentMode = mode;
+        document.getElementById('mode-dgt').classList.toggle('active-dark', mode === 'dgt');
+        document.getElementById('mode-custom').classList.toggle('active-dark', mode === 'custom');
+
+        const localBtn = document.getElementById('btn-upload-local');
+        const grid = document.getElementById('lib-grid');
+
+        if (mode === 'dgt') {
+            localBtn.disabled = true;
+            localBtn.style.opacity = '0.4';
+            localBtn.style.cursor = 'not-allowed';
+            fetchGitHubIcons();
+        } else {
+            localBtn.disabled = false;
+            localBtn.style.opacity = '1';
+            localBtn.style.cursor = 'pointer';
+            grid.innerHTML = '<p style="color:#999; font-size:12px;">Usa el botón "CARGAR CARPETA" para importar iconos desde tu PC.</p>';
+        }
+    }
+
+    // --- CARGA CLOUD (GITHUB API) ---
+    async function fetchGitHubIcons() {
+        const grid = document.getElementById('lib-grid');
+        grid.innerHTML = '<p style="color:#999; font-size:12px;">Cargando iconos desde GitHub Cloud...</p>';
+
+        const apiUrl = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FOLDER}`;
+
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error();
+
+            const files = await response.json();
+            grid.innerHTML = '';
+
+            const images = files.filter(f => f.name.match(/\.(png|jpe?g|gif|svg|webp)$/i)).sort((a, b) => a.name.localeCompare(b.name));
+
+            if (images.length === 0) {
+                grid.innerHTML = '<p style="color:red; font-size:12px;">Carpeta vacía en GitHub.</p>';
+                return;
+            }
+
+            images.forEach(file => {
+                const img = document.createElement('img');
+                img.src = file.download_url;
+                img.className = 'lib-img';
+                img.title = file.name.split('.')[0];
+                img.onclick = () => setSlotIcon(targetSide, file.download_url);
+                grid.appendChild(img);
+            });
+        } catch (e) {
+            grid.innerHTML = '<p style="color:#e74c3c; font-size:12px;">⚠️ No se pudo conectar con la biblioteca de GitHub. Revisa la configuración del repositorio en el código.</p>';
+        }
+    }
+
+    // --- CARGA LOCAL ---
+    function loadLocalIcons(input) {
+        const grid = document.getElementById('lib-grid');
+        grid.innerHTML = '';
+
+        const files = Array.from(input.files).filter(f => f.type.startsWith('image/')).sort((a, b) => a.name.localeCompare(b.name));
+
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'lib-img';
+                img.onclick = () => setSlotIcon(targetSide, e.target.result);
+                grid.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // --- LIMPIAR TODO ---
+    function resetAll() {
+        document.querySelectorAll('.input-group input').forEach(i => i.value = '');
+        ['chk-left', 'chk-text', 'chk-right'].forEach(id => document.getElementById(id).checked = false);
+        document.getElementById('slot-left').classList.remove('blinking');
+        document.getElementById('text-container').classList.remove('blinking');
+        document.getElementById('slot-right').classList.remove('blinking');
+        clearIcon('left');
+        clearIcon('right');
+        sync();
+    }
+
+    // --- INICIO ---
+    setTarget('left');
+    setLibraryMode('dgt');
+    sync();
+</script>
+</body>
+</html>
